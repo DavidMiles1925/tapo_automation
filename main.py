@@ -1,9 +1,10 @@
 import asyncio
 from tapo import ApiClient
+import aiohttp
 from gpiozero import Button
 from gpiozero.pins.lgpio import LGPIOFactory
 from signal import pause
-from config import TAPO_USERNAME, TAPO_PASSWORD, PLUG_IP_1, PLUG_IP_2
+from config import TAPO_USERNAME, TAPO_PASSWORD, NTFY_URL, PLUG_IP_1, PLUG_IP_2
 
 button = Button(23, pull_up=True, pin_factory=LGPIOFactory())
 
@@ -18,8 +19,9 @@ running = False
 
 async def power_cycle(plug, off_time=5, retries=3):
     try:
-        print(f"Turning plug {plug} OFF")
+        print(f"Turning plug {plug.host} OFF")
         await plug.off()
+        await send_ntfy(f"Plug OFF: {plug.host}")
 
         await asyncio.sleep(off_time)
 
@@ -28,6 +30,8 @@ async def power_cycle(plug, off_time=5, retries=3):
             try:
                 await plug.on()
                 print("Plug turned ON")
+                await send_ntfy(f"Plug ON: {plug.host}")
+
                 return
             except Exception as e:
                 print(f"ON attempt {attempt} failed: {e}")
@@ -35,6 +39,22 @@ async def power_cycle(plug, off_time=5, retries=3):
 
     except Exception as e:
         print(f"Power cycle failed early: {e}")
+        await send_ntfy(f"Power cycle failed for {plug.host}: {e}")
+
+
+async def send_ntfy(message, title="Tapo Power Cycle"):
+    try:
+        async with aiohttp.ClientSession() as session:
+            await session.post(
+                NTFY_URL,
+                data=message.encode("utf-8"),
+                headers={
+                    "Title": title,
+                    "Priority": "3"
+                }
+            )
+    except Exception as e:
+        print(f"Failed to send ntfy notification: {e}")
 
 
 async def main():

@@ -31,7 +31,10 @@ This creates:
 ~/tapo_automation/venv/
 
 3️⃣ Activate it
+
+```bash
 source venv/bin/activate
+```
 
 Your prompt should change to:
 
