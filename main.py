@@ -1,11 +1,11 @@
 import asyncio
 from tapo import ApiClient
-from gpiozero import Button
+from gpiozero import Device
+from gpiozero.pins.lgpio import LGPIOFactory
 from signal import pause
 from config import TAPO_USERNAME, TAPO_PASSWORD, PLUG_IP_1, PLUG_IP_2
 
-# Button on GPIO 23 (BCM)
-button = Button(23, pull_up=True)
+button = Button(23, pull_up=True, pin_factory=LGPIOFactory())
 
 tapo_username = TAPO_USERNAME
 tapo_password = TAPO_PASSWORD

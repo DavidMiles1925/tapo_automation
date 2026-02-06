@@ -40,7 +40,25 @@ Your prompt should change to:
 4️⃣ Install tapo inside the venv
 pip install tapo
 
-This will now work.
+Install within venv:
+
+```bash
+pip install gpiozero
+```
+
+You must install `swig` to install `lgpio`
+
+```bash
+sudo apt install swig
+```
+
+```bash
+sudo apt install liblgpio-dev
+```
+
+```bash
+pip install lgpio
+```
 
 5️⃣ Run your script
 python main.py
