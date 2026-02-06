@@ -58,6 +58,8 @@ async def main():
 
     except Exception as e:
         print(f"Top level exception: {e}")
+    except KeyboardInterrupt:
+        print(f"Program terminated.")
     finally:
         running = False
 
