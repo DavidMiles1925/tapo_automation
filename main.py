@@ -1,6 +1,6 @@
 import asyncio
 from tapo import ApiClient
-from gpiozero import Device
+from gpiozero import Button
 from gpiozero.pins.lgpio import LGPIOFactory
 from signal import pause
 from config import TAPO_USERNAME, TAPO_PASSWORD, PLUG_IP_1, PLUG_IP_2
