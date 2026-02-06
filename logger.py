@@ -3,7 +3,7 @@ import os
 from config import LOG_DIRECTORY_PATH
 
 
-def write_to_log(message="event", prefix="", print_datestamp=True):
+def write_to_log(message="event", prefix="log", print_datestamp=True):
     # Date strings
     if print_datestamp:
         datestamp = datetime.now().strftime("%m.%d.%Y")

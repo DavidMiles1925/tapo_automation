@@ -2,6 +2,10 @@
 
 This project was put together in an effort to give my family control over our tapo plugs without having to use the app on the phone.
 
+## Features
+
+Currently, the app is in its infancy, and is being used to disable some cameras for privacy. I have some cat cameras I use to keep an eye on my cats while I am travelling, but I like for the family members who come over to check on the cats to feel they can have their privacy. This project allows them to simply press a button and shut the cameras down for an hour.
+
 ## Dependencies
 
 For Raspberry Pi:
