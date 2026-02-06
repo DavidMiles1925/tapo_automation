@@ -92,8 +92,12 @@ Be sure to fill in your own information before running.
 **BE SURE to CREATE `config.py` TO CONTAIN YOUR SECRETS!**
 
 ```python
+LOG_DIRECTORY_PATH = "/home/voltorb/tapo_automations/logs/"
+
 TAPO_USERNAME = "your_tapo_account_email"
 TAPO_PASSWORD = "your_tapo_account_password"
+
 NTFY_URL = "https://ntfy.sh/your_topic"
+
 PLUG_IP = "192.168.1.200"
 ```
