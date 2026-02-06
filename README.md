@@ -4,23 +4,19 @@ This project was put together in an effort to give my family control over our ta
 
 ## Dependencies
 
-```bash
-pip install tapo
-```
-
 For Raspberry Pi:
 
 From your project directory:
 
 cd ~/tapo_automation
 
-1️⃣ Make sure venv support is installed
+### 1️⃣ Make sure venv support is installed
 
 ```bash
 sudo apt install python3-full -y
 ```
 
-2️⃣ Create a virtual environment
+### 2️⃣ Create a virtual environment
 
 ```bash
 python3 -m venv venv
@@ -30,7 +26,7 @@ This creates:
 
 ~/tapo_automation/venv/
 
-3️⃣ Activate it
+### 3️⃣ Activate it
 
 ```bash
 source venv/bin/activate
@@ -40,10 +36,13 @@ Your prompt should change to:
 
 (venv) voltorb@voltorb:~/tapo_automation $
 
-4️⃣ Install tapo inside the venv
-pip install tapo
+### 4️⃣ Install dependencies inside the venv
 
 Install within venv:
+
+```bash
+pip install tapo
+```
 
 ```bash
 pip install gpiozero
@@ -63,10 +62,21 @@ sudo apt install liblgpio-dev
 pip install lgpio
 ```
 
-5️⃣ Run your script
-python main.py
+```bash
+pip install aiohttp
+```
 
-Creating Service
+### 5️⃣ Run your script
+
+```bash
+python main.py
+```
+
+## Creating a Service to Run at Startup
+
+```bash
+sudo nano /etc/systemd/system/myapp.service
+```
 
 Be sure to point to the virtual environment python!
 
@@ -77,8 +87,8 @@ After=network.target
 [Service]
 Type=simple
 User=voltorb
-WorkingDirectory=/home/voltorb/tapo_automation
-ExecStart=/home/voltorb/tapo_automation/venv/bin/python /home/voltorb/tapo_automation/main.py
+WorkingDirectory=/home/pi_name/git_repo
+ExecStart=/home/voltorb/tapo_automation/venv/bin/python /home/pi_name/git_repo/myapp.py
 Restart=on-failure
 RestartSec=5s
 
@@ -87,9 +97,9 @@ WantedBy=multi-user.target
 
 ## Configure the Program
 
-Be sure to fill in your own information before running.
-
 **BE SURE to CREATE `config.py` TO CONTAIN YOUR SECRETS!**
+
+Copy and paste the following into the file. Be sure to fill in _your own information_ before running.
 
 ```python
 LOG_DIRECTORY_PATH = "/home/voltorb/tapo_automations/logs/"

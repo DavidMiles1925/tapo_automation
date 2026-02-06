@@ -11,19 +11,22 @@ button = Button(23, pull_up=True, pin_factory=LGPIOFactory())
 
 tapo_username = TAPO_USERNAME
 tapo_password = TAPO_PASSWORD
-plug_ip_1 = PLUG_IP_1
-plug_ip_2 = PLUG_IP_2
+
+PLUGS = [
+    ("Camera - Living Room", PLUG_IP_1),
+    ("Camera - Office", PLUG_IP_2),
+]
 
 # Prevent overlapping runs if button is spammed
 running = False
 
 
-async def power_cycle(plug, off_time=5, retries=3):
+async def power_cycle(name, plug, off_time=5, retries=3):
     try:
-        print(f"Turning plug {plug.host} OFF")
+        print(f"Turning plug {name} OFF")
         await plug.off()
-        await send_ntfy(f"Plug OFF: {plug.host}")
-        write_to_log(message=f"Plug OFF: {plug.host}")
+        await send_ntfy(f"Plug OFF: {name}")
+        write_to_log(message=f"Plug OFF: {name}")
 
         await asyncio.sleep(off_time)
 
@@ -32,8 +35,8 @@ async def power_cycle(plug, off_time=5, retries=3):
             try:
                 await plug.on()
                 print("Plug turned ON")
-                await send_ntfy(f"Plug ON: {plug.host}")
-                write_to_log(message=f"Plug ON: {plug.host}")
+                await send_ntfy(f"Plug ON: {name}")
+                write_to_log(message=f"Plug ON: {name}")
 
                 return
             except Exception as e:
@@ -43,8 +46,8 @@ async def power_cycle(plug, off_time=5, retries=3):
 
     except Exception as e:
         print(f"Power cycle failed early: {e}")
-        write_to_log(message=f"Power cycle failed for {plug.host}: {e}")
-        await send_ntfy(f"Power cycle failed for {plug.host}: {e}")
+        write_to_log(message=f"Power cycle failed for {name}: {e}")
+        await send_ntfy(f"Power cycle failed for {name}: {e}")
 
 
 async def send_ntfy(message, title="Tapo Power Cycle"):
@@ -74,12 +77,14 @@ async def main():
         print("Starting Tapo client")
         client = ApiClient(tapo_username, tapo_password)
 
-        plug_1 = await client.p100(plug_ip_1)
-        plug_2 = await client.p100(plug_ip_2)
+        plug_handlers = []
+
+        for name, ip in PLUGS:
+            plug = await client.p100(ip)
+            plug_handlers.append((name, plug))
 
         await asyncio.gather(
-            power_cycle(plug_1, off_time=5),
-            power_cycle(plug_2, off_time=5),
+            *(power_cycle(name, plug, off_time=3600) for name, plug in plug_handlers)
         )
 
     except Exception as e:
