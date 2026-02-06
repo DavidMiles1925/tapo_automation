@@ -94,5 +94,6 @@ Be sure to fill in your own information before running.
 ```python
 TAPO_USERNAME = "your_tapo_account_email"
 TAPO_PASSWORD = "your_tapo_account_password"
+NTFY_URL = "https://ntfy.sh/your_topic"
 PLUG_IP = "192.168.1.200"
 ```
