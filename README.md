@@ -8,6 +8,62 @@ This project was put together in an effort to give my family control over our ta
 pip install tapo
 ```
 
+For Raspberry Pi:
+
+From your project directory:
+
+cd ~/tapo_automation
+
+1️⃣ Make sure venv support is installed
+
+```bash
+sudo apt install python3-full -y
+```
+
+2️⃣ Create a virtual environment
+
+```bash
+python3 -m venv venv
+```
+
+This creates:
+
+~/tapo_automation/venv/
+
+3️⃣ Activate it
+source venv/bin/activate
+
+Your prompt should change to:
+
+(venv) voltorb@voltorb:~/tapo_automation $
+
+4️⃣ Install tapo inside the venv
+pip install tapo
+
+This will now work.
+
+5️⃣ Run your script
+python main.py
+
+Creating Service
+
+Be sure to point to the virtual environment python!
+
+[Unit]
+Description=Tapo Plug Automation
+After=network.target
+
+[Service]
+Type=simple
+User=voltorb
+WorkingDirectory=/home/voltorb/tapo_automation
+ExecStart=/home/voltorb/tapo_automation/venv/bin/python /home/voltorb/tapo_automation/main.py
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+
 ## Configure the Program
 
 Be sure to fill in your own information before running.
