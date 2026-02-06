@@ -75,6 +75,7 @@ async def main():
     running = True
     try:
         print("Starting Tapo client")
+        write_to_log(message="Starting Tapo client")
         client = ApiClient(tapo_username, tapo_password)
 
         plug_handlers = []

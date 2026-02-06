@@ -1,5 +1,6 @@
 # Ignore config files with secrets
 config.py
+pull_files.py
 
 # Python cache files
 __pycache__/
