@@ -7,7 +7,13 @@ from signal import pause
 from config import TAPO_USERNAME, TAPO_PASSWORD, NTFY_URL, PLUG_IP_1, PLUG_IP_2
 from logger import write_to_log
 
-button = Button(23, pull_up=True, pin_factory=LGPIOFactory())
+button = Button(
+    23,
+    pull_up=True,
+    bounce_time=0.5,   # 500ms debounce
+    pin_factory=LGPIOFactory()
+)
+
 
 tapo_username = TAPO_USERNAME
 tapo_password = TAPO_PASSWORD
@@ -97,12 +103,16 @@ async def main():
 
 
 def on_button_pressed():
+    global running
+
+    if running:
+        return
+
     print("Button pressed!")
+    button.when_pressed = None  # temporarily disable
     asyncio.run(main())
-
-
-# Attach button handler
-button.when_pressed = on_button_pressed
+    button.when_pressed = on_button_pressed  # re-enable
+    
 
 print("Waiting for button press on GPIO 23...")
 try:
