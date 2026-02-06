@@ -12,7 +12,7 @@ pip install tapo
 
 Be sure to fill in your own information before running.
 
-**BE SURE `config.py` IS NOT COMMENTED OUT IN `.gitignore` BEFORE PUSHING TO REPO!**
+**BE SURE to CREATE `config.py` TO CONTAIN YOUR SECRETS!**
 
 ```python
 TAPO_USERNAME = "your_tapo_account_email"
