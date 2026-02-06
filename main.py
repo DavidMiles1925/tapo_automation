@@ -58,8 +58,6 @@ async def main():
 
     except Exception as e:
         print(f"Top level exception: {e}")
-    except KeyboardInterrupt:
-        print(f"Program terminated.")
     finally:
         running = False
 
@@ -73,4 +71,7 @@ def on_button_pressed():
 button.when_pressed = on_button_pressed
 
 print("Waiting for button press on GPIO 23...")
-pause()  # Keeps the program running
+try:
+    pause()
+except KeyboardInterrupt:
+    print("\nShutting down cleanly")
