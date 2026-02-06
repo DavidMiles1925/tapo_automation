@@ -80,7 +80,7 @@ sudo nano /etc/systemd/system/myapp.service
 
 Be sure to point to the virtual environment python!
 
-```yaml
+```bash
 [Unit]
 Description=Tapo Plug Automation
 After=network.target
