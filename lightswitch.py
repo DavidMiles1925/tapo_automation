@@ -4,8 +4,10 @@ import os
 import threading
 import tkinter as tk
 from tkinter import messagebox, filedialog
-from config import TAPO_PASSWORD, TAPO_USERNAME
-
+try:
+    from config import TAPO_PASSWORD, TAPO_USERNAME
+except ImportError:
+    TAPO_PASSWORD = TAPO_USERNAME = None
 # Optional: if you installed packages with pip
 try:
     import aiohttp  # noqa: F401 (ensure installed)
@@ -268,14 +270,15 @@ class App:
         menubar.add_cascade(label="File", menu=filemenu)
         root.config(menu=menubar)
 
-        try:
-            self.username = TAPO_USERNAME
-            self.password = TAPO_PASSWORD
-        except:
-            # Credentials (prompt at startup)
+        if TAPO_USERNAME is None or TAPO_PASSWORD is None:
+            # try env, then prompt if still missing
             self.username = os.environ.get("TAPO_USERNAME") or ""
             self.password = os.environ.get("TAPO_PASSWORD") or ""
-            self.ask_credentials()
+            if not self.username or not self.password:
+                self.ask_credentials()
+        else:
+            self.username = TAPO_USERNAME
+            self.password = TAPO_PASSWORD
 
         self.manager = TapoManager(self.username, self.password)
 
@@ -311,7 +314,7 @@ class App:
         if self.username and self.password:
             return
         win = tk.Toplevel(self.root)
-        win.title("Tapo credentials")
+        win.title("Tapo credentials - No config file was found.")
         win.transient(self.root)
         win.grab_set()
         tk.Label(win, text="Tapo username (email):").grid(row=0, column=0, sticky="e", padx=6, pady=4)
