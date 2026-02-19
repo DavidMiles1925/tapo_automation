@@ -1,4 +1,6 @@
 import asyncio
+import threading
+from datetime import datetime
 from tapo import ApiClient
 import aiohttp
 from gpiozero import Button
@@ -7,55 +9,37 @@ from signal import pause
 from config import TAPO_USERNAME, TAPO_PASSWORD, NTFY_URL, PLUG_IP_1, PLUG_IP_2
 from logger import write_to_log
 
-button = Button(
-    23,
-    pull_up=True,
-    bounce_time=0.5,   # 500ms debounce
-    pin_factory=LGPIOFactory()
-)
-
-
-tapo_username = TAPO_USERNAME
-tapo_password = TAPO_PASSWORD
-
+# -------------------------------
+# GLOBALS
+# -------------------------------
+running = False  # prevents overlapping runs
 PLUGS = [
     ("Camera - Living Room", PLUG_IP_1),
     ("Camera - Office", PLUG_IP_2),
 ]
 
-# Prevent overlapping runs if button is spammed
-running = False
+# -------------------------------
+# ASYNC LOOP SETUP
+# -------------------------------
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
+# Start the loop in a background thread
+threading.Thread(target=loop.run_forever, daemon=True).start()
 
-async def power_cycle(name, plug, off_time=5, retries=3):
-    try:
-        print(f"Turning plug {name} OFF")
-        await plug.off()
-        await send_ntfy(f"Plug OFF: {name}")
-        write_to_log(message=f"Plug OFF: {name}")
+# -------------------------------
+# BUTTON SETUP
+# -------------------------------
+button = Button(
+    23,
+    pull_up=True,
+    bounce_time=0.15,  # 150ms debounce
+    pin_factory=LGPIOFactory()
+)
 
-        await asyncio.sleep(off_time)
-
-        print(f"Turning plug {plug} ON")
-        for attempt in range(1, retries + 1):
-            try:
-                await plug.on()
-                print("Plug turned ON")
-                await send_ntfy(f"Plug ON: {name}")
-                write_to_log(message=f"Plug ON: {name}")
-
-                return
-            except Exception as e:
-                print(f"ON attempt {attempt} failed: {e}")
-                write_to_log(message=f"ON attempt {attempt} failed: {e}")
-                await asyncio.sleep(2)
-
-    except Exception as e:
-        print(f"Power cycle failed early: {e}")
-        write_to_log(message=f"Power cycle failed for {name}: {e}")
-        await send_ntfy(f"Power cycle failed for {name}: {e}")
-
-
+# -------------------------------
+# NTFY NOTIFICATIONS
+# -------------------------------
 async def send_ntfy(message, title="Tapo Power Cycle"):
     try:
         async with aiohttp.ClientSession() as session:
@@ -70,7 +54,42 @@ async def send_ntfy(message, title="Tapo Power Cycle"):
     except Exception as e:
         print(f"Failed to send ntfy notification: {e}")
 
+# -------------------------------
+# POWER CYCLE FUNCTION
+# -------------------------------
+async def power_cycle(name, plug, off_time=5, retries=3):
+    try:
+        # OFF
+        print(f"Turning plug {name} OFF")
+        await plug.off()
+        write_to_log(message=f"Plug OFF: {name}")
+        await send_ntfy(f"Plug OFF: {name}")
 
+        # Wait
+        await asyncio.sleep(off_time)
+
+        # ON
+        print(f"Turning plug {name} ON")
+        for attempt in range(1, retries + 1):
+            try:
+                await plug.on()
+                write_to_log(message=f"Plug ON: {name}")
+                await send_ntfy(f"Plug ON: {name}")
+                print(f"Plug {name} turned ON")
+                return
+            except Exception as e:
+                print(f"ON attempt {attempt} failed: {e}")
+                write_to_log(message=f"ON attempt {attempt} failed: {e}")
+                await asyncio.sleep(2)
+
+    except Exception as e:
+        print(f"Power cycle failed early: {e}")
+        write_to_log(message=f"Power cycle failed for {name}: {e}")
+        await send_ntfy(f"Power cycle failed for {name}: {e}")
+
+# -------------------------------
+# MAIN TASK
+# -------------------------------
 async def main():
     global running
     if running:
@@ -82,16 +101,16 @@ async def main():
     try:
         print("Starting Tapo client")
         write_to_log(message="Starting Tapo client")
-        client = ApiClient(tapo_username, tapo_password)
+        client = ApiClient(TAPO_USERNAME, TAPO_PASSWORD)
 
         plug_handlers = []
-
         for name, ip in PLUGS:
             plug = await client.p100(ip)
             plug_handlers.append((name, plug))
 
+        # Run power cycles concurrently
         await asyncio.gather(
-            *(power_cycle(name, plug, off_time=3600) for name, plug in plug_handlers)
+            *(power_cycle(name, plug, off_time=5) for name, plug in plug_handlers)
         )
 
     except Exception as e:
@@ -101,21 +120,20 @@ async def main():
     finally:
         running = False
 
-
+# -------------------------------
+# BUTTON CALLBACK
+# -------------------------------
 def on_button_pressed():
-    global running
-
-    if running:
-        return
-
     print("Button pressed!")
-    button.when_pressed = None  # temporarily disable
-    asyncio.run(main())
-    button.when_pressed = on_button_pressed  # re-enable
-    
+    asyncio.run_coroutine_threadsafe(main(), loop)
 
+button.when_pressed = on_button_pressed
+
+# -------------------------------
+# START
+# -------------------------------
 print("Waiting for button press on GPIO 23...")
 try:
-    pause()
+    pause()  # keeps main thread alive
 except KeyboardInterrupt:
     print("\nShutting down cleanly")

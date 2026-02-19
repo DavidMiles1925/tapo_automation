@@ -76,6 +76,12 @@ pip install aiohttp
 python main.py
 ```
 
+**NEW GUI!**
+
+```bash
+python lightswitch.py
+```
+
 ## Creating a Service to Run at Startup
 
 ```bash
