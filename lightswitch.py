@@ -194,7 +194,7 @@ class PlugRow:
             # Set local UI state optimistically
             self.parent.after(0, lambda: self.set_state("on"))
         except Exception as e:
-            self.parent.after(0, lambda: self._show_error(str(e)))
+            self.parent.after(0, self._show_error, str(e))
 
     def on_click_off(self):
         fut = RUNNER.submit(self._async_off())
@@ -206,7 +206,7 @@ class PlugRow:
             # Set local UI state optimistically
             self.parent.after(0, lambda: self.set_state("off"))
         except Exception as e:
-            self.parent.after(0, lambda: self._show_error(str(e)))
+            self.parent.after(0, self._show_error, str(e))
 
     def on_click_edit(self):
         def do_edit():

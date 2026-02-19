@@ -49,7 +49,21 @@ pip install tapo
 ```
 
 ```bash
-pip install gpiozero
+pip install aiohttp
+```
+
+```bash
+pip install pytube
+```
+
+```bash
+pip install tk
+```
+
+**Raspberry Pi Only:**
+
+```bash
+sudo apt install gpiozero
 ```
 
 You must install `swig` to install `lgpio`
@@ -63,11 +77,7 @@ sudo apt install liblgpio-dev
 ```
 
 ```bash
-pip install lgpio
-```
-
-```bash
-pip install aiohttp
+sudo apt install lgpio
 ```
 
 ### 5️⃣ Run your script
