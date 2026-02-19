@@ -255,7 +255,7 @@ class PlugRow:
 class App:
     def __init__(self, root):
         self.root = root
-        root.title("Tapo Plug Manager")
+        root.title("Light Switch")
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
         # Top menu
