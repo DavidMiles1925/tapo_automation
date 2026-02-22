@@ -4,6 +4,8 @@ import os
 import threading
 import tkinter as tk
 from tkinter import messagebox, filedialog
+import tkinter.font as tkfont
+
 try:
     from config import TAPO_PASSWORD, TAPO_USERNAME
 except ImportError:
@@ -135,33 +137,40 @@ class TapoManager:
 # Tkinter GUI
 # --------------------------
 class PlugRow:
-    def __init__(self, parent_frame, name, ip, manager: TapoManager, on_update_callback):
+    def __init__(self, parent_frame, name, ip, manager: TapoManager, on_update_callback, fonts):
         self.parent = parent_frame
         self.name = name
         self.ip = ip
         self.manager = manager
         self.on_update = on_update_callback  # called when plug edited/removed
+        self.fonts = fonts
 
-        self.frame = tk.Frame(self.parent, pady=2)
+        # Increased pady so rows are easier to press
+        self.frame = tk.Frame(self.parent, pady=6)
         self.frame.pack(fill="x", anchor="w")
 
-        self.lbl_name = tk.Label(self.frame, text=self.name, width=20, anchor="w")
-        self.lbl_name.pack(side="left", padx=(2, 6))
+        # Larger name label for kid/touch usability
+        self.lbl_name = tk.Label(self.frame, text=self.name, width=20, anchor="w", font=self.fonts["name"])
+        self.lbl_name.pack(side="left", padx=(2, 12))
 
-        self.lbl_ip = tk.Label(self.frame, text=self.ip, width=16, anchor="w")
-        self.lbl_ip.pack(side="left", padx=(2, 6))
+        # IP somewhat smaller but still legible
+        self.lbl_ip = tk.Label(self.frame, text=self.ip, width=18, anchor="w", font=self.fonts["ip"])
+        self.lbl_ip.pack(side="left", padx=(2, 12))
 
-        self.btn_on = tk.Button(self.frame, text="ON", width=6, command=self.on_click_on)
-        self.btn_on.pack(side="left", padx=4)
+        # Bigger ON/OFF buttons with larger font and height for touch
+        self.btn_on = tk.Button(self.frame, text="ON", width=8, height=2, font=self.fonts["btn"], command=self.on_click_on)
+        self.btn_on.pack(side="left", padx=6)
 
-        self.btn_off = tk.Button(self.frame, text="OFF", width=6, command=self.on_click_off)
-        self.btn_off.pack(side="left", padx=4)
+        self.btn_off = tk.Button(self.frame, text="OFF", width=8, height=2, font=self.fonts["btn"], command=self.on_click_off)
+        self.btn_off.pack(side="left", padx=6)
 
-        self.btn_edit = tk.Button(self.frame, text="Edit", width=6, command=self.on_click_edit)
-        self.btn_edit.pack(side="right", padx=(6, 2))
+        # Edit button larger for touch users
+        self.btn_edit = tk.Button(self.frame, text="Edit", width=8, height=2, font=self.fonts["small_btn"], command=self.on_click_edit)
+        self.btn_edit.pack(side="right", padx=(12, 6))
 
-        self.btn_remove = tk.Button(self.frame, text="Remove", width=8, command=self.on_click_remove)
-        self.btn_remove.pack(side="right", padx=(6, 2))
+        # Remove button now shows "X" only (larger and clear)
+        self.btn_remove = tk.Button(self.frame, text="X", width=4, height=2, font=self.fonts["btn"], command=self.on_click_remove, fg="white", bg="#d9534f")
+        self.btn_remove.pack(side="right", padx=(6, 6))
 
         # Remember default button colors to restore later
         self._default_btn_bg = self.btn_on.cget("bg")
@@ -260,6 +269,18 @@ class App:
         root.title("Light Switch")
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
+        # Create fonts for large/touch-friendly UI
+        # Name font is large for readability/touch
+        self.font_name = tkfont.Font(size=20, weight="bold")
+        # IP font slightly smaller than name
+        self.font_ip = tkfont.Font(size=12)
+        # Button font large and bold
+        self.font_btn = tkfont.Font(size=16, weight="bold")
+        # Slightly smaller font for edit button label
+        self.font_small_btn = tkfont.Font(size=12, weight="bold")
+        # Header font
+        self.font_header = tkfont.Font(size=14, weight="bold")
+
         # Top menu
         menubar = tk.Menu(root)
         filemenu = tk.Menu(menubar, tearoff=0)
@@ -283,13 +304,13 @@ class App:
         self.manager = TapoManager(self.username, self.password)
 
         # Main frame for plug list
-        top = tk.Frame(root, padx=8, pady=8)
+        top = tk.Frame(root, padx=12, pady=12)
         top.pack(fill="both", expand=True)
 
         header = tk.Frame(top)
         header.pack(fill="x")
-        tk.Label(header, text="Name", width=20).pack(side="left", padx=(2, 6))
-        tk.Label(header, text="IP", width=16).pack(side="left", padx=(2, 6))
+        tk.Label(header, text="Name", width=20, font=self.font_header).pack(side="left", padx=(2, 12))
+        tk.Label(header, text="IP", width=18, font=self.font_header).pack(side="left", padx=(2, 12))
         # filler for buttons
         tk.Label(header, text="", width=36).pack(side="left")
 
@@ -297,11 +318,11 @@ class App:
         self.plug_container.pack(fill="both", expand=True)
 
         # bottom controls
-        bottom = tk.Frame(root, pady=6)
+        bottom = tk.Frame(root, pady=8)
         bottom.pack(fill="x")
-        self.btn_add = tk.Button(bottom, text="Add Plug", command=self.add_plug_dialog)
+        self.btn_add = tk.Button(bottom, text="Add Plug", command=self.add_plug_dialog, font=self.font_small_btn, height=2)
         self.btn_add.pack(side="left", padx=6)
-        self.btn_save = tk.Button(bottom, text="Save List", command=self.save_list)
+        self.btn_save = tk.Button(bottom, text="Save List", command=self.save_list, font=self.font_small_btn, height=2)
         self.btn_save.pack(side="right", padx=6)
 
         # load plugs
@@ -385,7 +406,13 @@ class App:
             messagebox.showerror("Import error", f"Failed to import: {e}")
 
     def _add_plug_row(self, name, ip, save=True):
-        row = PlugRow(self.plug_container, name, ip, self.manager, self._on_row_update)
+        fonts = {
+            "name": self.font_name,
+            "ip": self.font_ip,
+            "btn": self.font_btn,
+            "small_btn": self.font_small_btn,
+        }
+        row = PlugRow(self.plug_container, name, ip, self.manager, self._on_row_update, fonts)
         self.plug_rows.append(row)
         if save:
             if not any(p["name"] == name and p["ip"] == ip for p in self.plugs):

@@ -1,6 +1,7 @@
 # Ignore config files with secrets
 config.py
 pull_files.py
+lightswitch.pyw
 
 # Python cache files
 __pycache__/
