@@ -169,7 +169,7 @@ class PlugRow:
         self.btn_edit.pack(side="right", padx=(12, 6))
 
         # Remove button now shows "X" only (larger and clear)
-        self.btn_remove = tk.Button(self.frame, text="X", width=4, height=2, font=self.fonts["btn"], command=self.on_click_remove, fg="white", bg="#d9534f")
+        self.btn_remove = tk.Button(self.frame, text="X", width=4, height=2, font=self.fonts["btn"], command=self.on_click_remove, fg="white", bg="#ffcccb")
         self.btn_remove.pack(side="right", padx=(6, 6))
 
         # Remember default button colors to restore later
