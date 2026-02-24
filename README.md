@@ -1,152 +1,47 @@
-# Tapo Automation
+# Tapo Automation - Light Switch Program (lightswitch.py)
 
-This project was put together in an effort to give my family control over our tapo plugs without having to use the app on the phone.
+This project was put together in an effort to give my family control over our tapo plugs without having to use the app on the phone. I wanted my kids to be able to turn lights on and off by themselves, especially my disabled son, but I did not want to readily give them access to all of the things on our Tapo account (i.e. cameras, locks, etc.). I also did not like that the Tapo app is only available on mobile platforms, and not on the desktop.
+
+This program gives control tapo plugs and lights from any device. It also gives the flexibility to set up each device to contain its own deicated list of plugs, with custom names. The program contains a simple list of devices that are displayed with a description, along with the device IP address. Devices can easily be added or removed with the click of a button.
 
 ## Features
 
-Currently, the app is in its infancy, and is being used to disable some cameras for privacy. I have some cat cameras I use to keep an eye on my cats while I am travelling, but I like for the family members who come over to check on the cats to feel they can have their privacy. This project allows them to simply press a button and shut the cameras down for an hour.
+- Simple, touch-friendly GUI
+  - Large, high-contrast labels and oversized ON/OFF buttons for easy use on touch screens or by kids.
+  - Compact edit (Edit) and remove (X) controls for each plug.
 
-## Pi Automation (main.py)
+- Per-plug controls
+  - Turn individual Tapo plugs ON or OFF.
+  - Edit plug name and IP, or remove a plug from the list.
 
-### Dependencies
+- Batch operations
+  - ALL ON / ALL OFF buttons to toggle every saved plug in sequence.
+  - Small delay between devices to avoid hammering the network or devices.
 
-For Raspberry Pi:
+- Non-blocking, responsive UI
+  - All network I/O runs in an asyncio loop on a background thread so the Tkinter UI stays responsive during operations and batch runs.
 
-From your project directory:
+- Easy credential handling
+  - Accepts credentials from config.py, environment variables (TAPO_USERNAME / TAPO_PASSWORD), or an on-start prompt.
+  - Credentials are used in-memory; they are not written to the local plug list file.
 
-cd ~/tapo_automation
+- Persistent plug list
+  - Saves and loads plugs from a JSON file in the user home directory (~/.tapo_plugs.json).
+  - Manual "Save List" button and an Import plugs feature that accepts a JSON file containing [{"name": "...", "ip": "..."}, ...].
 
-### 1️⃣ Make sure venv support is installed
+- Error handling and user feedback
+  - Friendly message boxes for missing dependencies, import errors, and Tapo device errors.
+  - Continues batch operations if one device fails, and reports individual failures.
 
-```bash
-sudo apt install python3-full -y
-```
+- Cross-platform GUI
+  - Built with Tkinter — runs on Windows, macOS, and Linux (note: some Linux distros require the system package python3-tk).
 
-### 2️⃣ Create a virtual environment
+- Minimal external dependencies
+  - Requires the tapo client library and aiohttp for network communication; Tkinter is provided by the Python standard library (system package may be needed on some OSes).
 
-```bash
-python3 -m venv venv
-```
+## Prerequisites
 
-This creates:
-
-~/tapo_automation/venv/
-
-### 3️⃣ Activate it
-
-```bash
-source venv/bin/activate
-```
-
-Your prompt should change to:
-
-(venv) voltorb@voltorb:~/tapo_automation $
-
-### 4️⃣ Install dependencies inside the venv
-
-Install within venv:
-
-```bash
-sudo apt install tapo
-```
-
-```bash
-sudo apt install aiohttp
-```
-
-```bash
-sudo apt install pytube
-```
-
-```bash
-sudo apt install tk
-```
-
-**Raspberry Pi Only:**
-
-```bash
-sudo apt install gpiozero
-```
-
-You must install `swig` to install `lgpio`
-
-```bash
-sudo apt install swig
-```
-
-```bash
-sudo apt install liblgpio-dev
-```
-
-```bash
-sudo apt install lgpio
-```
-
-### 5️⃣ Run your script
-
-```bash
-python main.py
-```
-
-**NEW GUI!**
-
-```bash
-python lightswitch.py
-```
-
-## Creating a Service to Run at Startup
-
-```bash
-sudo nano /etc/systemd/system/myapp.service
-```
-
-Be sure to point to the virtual environment python!
-
-```bash
-[Unit]
-Description=Tapo Plug Automation
-After=network.target
-
-[Service]
-Type=simple
-User=pi_name
-WorkingDirectory=/home/pi_name/git_repo
-ExecStart=/home/pi_name/tapo_automation/venv/bin/python /home/pi_name/git_repo/myapp.py
-Restart=on-failure
-RestartSec=5s
-
-[Install]
-WantedBy=multi-user.target
-```
-
-## Configure the Program
-
-**BE SURE to CREATE `config.py` TO CONTAIN YOUR SECRETS!**
-
-Copy and paste the following into the file. Be sure to fill in _your own information_ before running.
-
-```python
-LOG_DIRECTORY_PATH = "/home/pi_name/tapo_automations/logs/"
-
-TAPO_USERNAME = "your_tapo_account_email"
-TAPO_PASSWORD = "your_tapo_account_password"
-
-NTFY_URL = "https://ntfy.sh/your_topic"
-
-PLUG_IP = "192.168.1.200"
-```
-
-## Light Switch Program (lightswitch.py)
-
-### Description
-
-This is a program used to control the on/off state of Tapo plugs and bulbs. (I may expand funtionallity to include Kasa devices in the future.) I developed it as a solution for my diabled son to be able to turn lights on and off in his bedroom without having to dig his cell phone out to operate the smart plugs and/or bulbs.
-
-The program contains a simple list of devices that are displayed with a description and the device IP address. Devices can easily be added or removed with the click of a button.
-
-### Dependencies
-
-This program is designed to run from a desktop computer or a Raspberry Pi running a full Desbian installation.
+### Install Python (Full)
 
 You must have Python fully installed
 
@@ -157,7 +52,7 @@ You must have Python fully installed
 sudo apt install python3-full -y
 ```
 
-**Install Required Libraries:**
+### Install Required Libraries:
 
 For Raspberry Pi, replace `pip` with `sudo apt`.
 
@@ -169,15 +64,37 @@ pip install tapo
 pip install aiohttp
 ```
 
-```bash
-pip install pytube
-```
+### Install tkinter
+
+> Notes on tkinter installation:
+>
+> - tkinter is part of the Python standard library (tkinter module) and is not installed via pip. On many Linux distributions you need to install the system package (e.g. apt install python3-tk) for the GUI to work.
 
 ```bash
-pip install tk
+apt install python3-tk
 ```
 
-### Installation
+> - If pip can't find the tapo package on PyPI (package names sometimes differ), check the library you used and substitute the correct PyPI package name (or install direct from the project’s Git repo).
+
+### Configure Static IP addresses for Tapo Devices.
+
+1. Log into your router's administrative tool through your web browser (usually something like 192.169.0.1)
+2. Find DHCP settings (usually under Advanced settings)
+3. Reserve your device's IP address
+
+⚠️ **If you assign a new IP address to the device via your router, _POWER THE TAPO DEVICE DOWN FIRST_. Failure to do this may result in having to re-pair the device with your account.**
+
+> Notes:
+>
+> - You can find your device's assigned IP address in your Tapo app under Device Info.
+> - If you assign a new IP address to the device, POWER THE TAPO DEVICE DOWN FIRST. Failure to do this may result in having to re-pair the device with your account.
+> - Some routers (e.g. Google Routers) do not have adequete DHCP handling, and will not be able to set static IP addresses.
+
+## Program Installation
+
+⚠️ **Please ensure you have complete all [Prerequisites](#prerequisites) prior to program installation!**
+
+### Get the Files
 
 From the command line or terminal, clone the repository:
 
@@ -189,16 +106,14 @@ git clone https://github.com/DavidMiles1925/tapo_automation
 
 #### Option 1 - Use `config.py` File (recommended for debugging only):
 
-Within the same directory as `lightswitch.py`, create a file called `config.py`. If you have already done this using the instructions in the Dependencies section, you can re-use this file.
+**Within the same directory** as `lightswitch.py`, create a file called `config.py`. Copy and paste the following contents into the file. Replace _your_tapo_account_email_ and _your_tapo_account_password_ with your true values.
 
 ```python
 TAPO_USERNAME = "your_tapo_account_email"
 TAPO_PASSWORD = "your_tapo_account_password"
 ```
 
-**_Add the `config.py` file to your .gitignore to prevent it from being committed to source control._**
-
-Replace _your_tapo_account_email_ and _your_tapo_account_password_ with your true values.
+⚠️ **_Be sure that `config.py` is in your `.gitignore` file to prevent it from being committed to source control._**
 
 #### Option 2 - Use Environment Variables (more secure)
 
@@ -236,31 +151,48 @@ password = os.getenv("TAPO_PASSWORD")
 
 If credentials are not able to be imported from config.py and there are no environment variables set, the program will ask you to manually enter credentials.
 
-### Using the Program
+## Using the Program
 
-#### Add a Plug
+### Add a Plug Button
 
 - Click the "Add Plug" button to add a device to the list. Enter a description (can be anything) and the device's IP address.
+- Plugs can be named anything, it _does NOT need to match_ the name in the tapo app.
 - Duplicate entries are allowed, but not recommended for obvious reasons.
 
-> Note: The list of devices stored in the user's home directory within a file called `.tapo_plugs.json`
+> Note: The list of devices stored in the user's home directory within a file called `.tapo_plugs.json`.
 
-#### ON and OFF
+### ON and OFF Buttons
 
 - Clicking either button sends a command to the plug and awaits a response. If there is an authentication error, the user will recieve a pop-up warning.
 - The button that was clicked/pressed last will be highlighted. This is not a reliable indicator of the device's status, and is only influenced by the last press.
 
-#### Edit
+### ALL ON and ALL OFF Buttons
+
+- This will set the status of all devices to ON or OFF. If there is an error for a single plug, the user will recieve a pop-up warning, but it will not stop the batch process.
+- The highlighted status of the button will change as each plug responds.
+
+### Edit Button
 
 - This feature allows a device's properties to be edited.
-- Once edited, changes cannot be undone.
+- Plugs can be named anything, it does not need to match the name in the tapo app.
 
-#### Remove
+### X (Remove) Button
 
 - This will remove a device from the list.
 - You will receive a confirmation pop-up.
 - This action cannot be undone.
 
-#### Save List
+### Save List Button
 
 - This feature is a bit redundant, as the list is saved by default when an item is added or deleted. It exists for debugging purposes.
+
+### Import Plugs...
+
+- Located in the `File` menu.
+- This allows a list of plugs to be imported from another JSON file, rather than entering plugs manually.
+
+## Developer Notes
+
+### Depricated Files:
+
+These are stored in their own folder. This includes a project I did to initally explore controlling the tapo plugs externally from the app.

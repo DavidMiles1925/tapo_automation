@@ -404,11 +404,25 @@ class App:
                 data = json.load(f)
             if not isinstance(data, list):
                 raise ValueError("File must contain a JSON list of {'name':..., 'ip':...}")
+
+            added_any = False
             for p in data:
                 if "name" in p and "ip" in p:
-                    self._add_plug_row(str(p["name"]), str(p["ip"]), save=False)
-            self.save_list()
-            messagebox.showinfo("Imported", "Plugs imported.")
+                    name = str(p["name"])
+                    ip = str(p["ip"])
+                    # Only add if not already present
+                    if not any(q["name"] == name and q["ip"] == ip for q in self.plugs):
+                        self.plugs.append({"name": name, "ip": ip})
+                        # Create the row without triggering per-item save popups
+                        self._add_plug_row(name, ip, save=False)
+                        added_any = True
+
+            if added_any:
+                self.save_list()
+                messagebox.showinfo("Imported", "Plugs imported.")
+            else:
+                messagebox.showinfo("Imported", "No new plugs to import.")
+
         except Exception as e:
             messagebox.showerror("Import error", f"Failed to import: {e}")
 
