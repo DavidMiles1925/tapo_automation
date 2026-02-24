@@ -6,38 +6,40 @@ This program gives control tapo plugs and lights from any device. It also gives 
 
 ## Features
 
-- Simple, touch-friendly GUI
+- ✅ Simple, touch-friendly GUI
   - Large, high-contrast labels and oversized ON/OFF buttons for easy use on touch screens or by kids.
   - Compact edit (Edit) and remove (X) controls for each plug.
 
-- Per-plug controls
+- ✅ Per-plug controls
   - Turn individual Tapo plugs ON or OFF.
   - Edit plug name and IP, or remove a plug from the list.
 
-- Batch operations
+- ✅ Batch operations
   - ALL ON / ALL OFF buttons to toggle every saved plug in sequence.
   - Small delay between devices to avoid hammering the network or devices.
 
-- Non-blocking, responsive UI
+- ✅ Non-blocking, responsive UI
   - All network I/O runs in an asyncio loop on a background thread so the Tkinter UI stays responsive during operations and batch runs.
 
-- Easy credential handling
+- ✅ Easy credential handling
   - Accepts credentials from config.py, environment variables (TAPO_USERNAME / TAPO_PASSWORD), or an on-start prompt.
   - Credentials are used in-memory; they are not written to the local plug list file.
 
-- Persistent plug list
+- ✅ Persistent plug list
   - Saves and loads plugs from a JSON file in the user home directory (~/.tapo_plugs.json).
   - Manual "Save List" button and an Import plugs feature that accepts a JSON file containing [{"name": "...", "ip": "..."}, ...].
 
-- Error handling and user feedback
+- ✅ Error handling and user feedback
   - Friendly message boxes for missing dependencies, import errors, and Tapo device errors.
   - Continues batch operations if one device fails, and reports individual failures.
 
-- Cross-platform GUI
+- ✅ Cross-platform GUI
   - Built with Tkinter — runs on Windows, macOS, and Linux (note: some Linux distros require the system package python3-tk).
 
-- Minimal external dependencies
+- ✅ Minimal external dependencies
   - Requires the tapo client library and aiohttp for network communication; Tkinter is provided by the Python standard library (system package may be needed on some OSes).
+
+---
 
 ## Prerequisites
 
@@ -89,6 +91,8 @@ apt install python3-tk
 > - You can find your device's assigned IP address in your Tapo app under Device Info.
 > - If you assign a new IP address to the device, POWER THE TAPO DEVICE DOWN FIRST. Failure to do this may result in having to re-pair the device with your account.
 > - Some routers (e.g. Google Routers) do not have adequete DHCP handling, and will not be able to set static IP addresses.
+
+---
 
 ## Program Installation
 
@@ -151,6 +155,8 @@ password = os.getenv("TAPO_PASSWORD")
 
 If credentials are not able to be imported from config.py and there are no environment variables set, the program will ask you to manually enter credentials.
 
+---
+
 ## Using the Program
 
 ### Add a Plug Button
@@ -190,6 +196,8 @@ If credentials are not able to be imported from config.py and there are no envir
 
 - Located in the `File` menu.
 - This allows a list of plugs to be imported from another JSON file, rather than entering plugs manually.
+
+---
 
 ## Developer Notes
 
