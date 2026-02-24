@@ -1,5 +1,7 @@
 # Tapo Automation - Light Switch Program (lightswitch.py)
 
+## Description
+
 This project was put together in an effort to give my family control over our tapo plugs without having to use the app on the phone. I wanted my kids to be able to turn lights on and off by themselves, especially my disabled son, but I did not want to readily give them access to all of the things on our Tapo account (i.e. cameras, locks, etc.). I also did not like that the Tapo app is only available on mobile platforms, and not on the desktop.
 
 This program gives control tapo plugs and lights from any device. It also gives the flexibility to set up each device to contain its own deicated list of plugs, with custom names. The program contains a simple list of devices that are displayed with a description, along with the device IP address. Devices can easily be added or removed with the click of a button.
