@@ -311,8 +311,15 @@ class App:
         header.pack(fill="x")
         tk.Label(header, text="Name", width=20, font=self.font_header).pack(side="left", padx=(2, 12))
         tk.Label(header, text="IP", width=18, font=self.font_header).pack(side="left", padx=(2, 12))
-        # filler for buttons
-        tk.Label(header, text="", width=36).pack(side="left")
+
+        # Header buttons for ALL ON / ALL OFF (aligned above individual ON/OFF columns)
+        self.btn_all_on = tk.Button(header, text="ALL ON", width=8, height=2, font=self.font_btn, command=self.all_on)
+        self.btn_all_on.pack(side="left", padx=6)
+        self.btn_all_off = tk.Button(header, text="ALL OFF", width=8, height=2, font=self.font_btn, command=self.all_off)
+        self.btn_all_off.pack(side="left", padx=6)
+
+        # Filler to push edit/remove columns to the right visually
+        tk.Label(header, text="", width=20).pack(side="left", padx=(12, 0))
 
         self.plug_container = tk.Frame(top)
         self.plug_container.pack(fill="both", expand=True)
@@ -440,6 +447,70 @@ class App:
     def save_list(self):
         save_plugs(self.plugs)
         messagebox.showinfo("Saved", f"Plug list saved to {PLUGS_FILE}")
+
+    # --------------------------
+    # ALL ON / ALL OFF handlers
+    # --------------------------
+    def all_on(self):
+        self._toggle_all("on")
+
+    def all_off(self):
+        self._toggle_all("off")
+
+    def _toggle_all(self, action):
+        # Disable controls while batch operation runs
+        self._set_controls_enabled(False)
+        fut = RUNNER.submit(self._async_toggle_all(action))
+        fut.add_done_callback(lambda f: self.root.after(0, self._on_all_done, f))
+
+    async def _async_toggle_all(self, action):
+        # Iterate through saved plugs in order
+        for p in self.plugs:
+            ip = p["ip"]
+            name = p["name"]
+            try:
+                if action == "on":
+                    await self.manager.turn_on(ip)
+                else:
+                    await self.manager.turn_off(ip)
+
+                # Update the corresponding row state on the main thread
+                def update_row():
+                    for r in self.plug_rows:
+                        if r.ip == ip:
+                            r.set_state("on" if action == "on" else "off")
+                self.root.after(0, update_row)
+
+            except Exception as e:
+                # Show error but continue with others
+                def show_err():
+                    messagebox.showerror("Tapo Error", f"Failed to turn {action.upper()} {name} ({ip}): {e}")
+                self.root.after(0, show_err)
+
+            # Small delay between devices to avoid hammering the network/device
+            await asyncio.sleep(0.15)
+
+    def _on_all_done(self, fut):
+        self._set_controls_enabled(True)
+        try:
+            fut.result()
+        except Exception as e:
+            messagebox.showerror("Tapo Error", f"Batch operation error: {e}")
+
+    def _set_controls_enabled(self, enabled: bool):
+        state = "normal" if enabled else "disabled"
+        # All/batch buttons
+        self.btn_all_on.config(state=state)
+        self.btn_all_off.config(state=state)
+        # Row buttons and edit/remove
+        for r in self.plug_rows:
+            r.btn_on.config(state=state)
+            r.btn_off.config(state=state)
+            r.btn_edit.config(state=state)
+            r.btn_remove.config(state=state)
+        # Bottom controls
+        self.btn_add.config(state=state)
+        self.btn_save.config(state=state)
 
     def on_close(self):
         try:
