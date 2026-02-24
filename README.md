@@ -96,7 +96,7 @@ apt install python3-tk
 
 ## Program Installation
 
-⚠️ **Please ensure you have complete all [Prerequisites](#prerequisites) prior to program installation!**
+⚠️ **Please ensure you have completed all [Prerequisites](#prerequisites) prior to program installation!**
 
 ### Get the Files
 
@@ -108,7 +108,9 @@ git clone https://github.com/DavidMiles1925/tapo_automation
 
 ### Setting Credentials
 
-#### Option 1 - Use `config.py` File (recommended for debugging only):
+You will need to provide the program with your Tapo username and password. There are three ways you can set your credentials:
+
+#### Option 1 - Use `config.py` File (recommended for debugging or personal machines only):
 
 **Within the same directory** as `lightswitch.py`, create a file called `config.py`. Copy and paste the following contents into the file. Replace _your_tapo_account_email_ and _your_tapo_account_password_ with your true values.
 
@@ -119,7 +121,7 @@ TAPO_PASSWORD = "your_tapo_account_password"
 
 ⚠️ **_Be sure that `config.py` is in your `.gitignore` file to prevent it from being committed to source control._**
 
-#### Option 2 - Use Environment Variables (more secure)
+#### Option 2 - Use Environment Variables (more secure, recommended for shared machines and long term use)
 
 For managing configuration and sensitive information (like API keys and passwords) that should not be hardcoded or committed to version control, using a .env file with the python-dotenv library is a best practice.
 
@@ -153,13 +155,13 @@ password = os.getenv("TAPO_PASSWORD")
 
 #### Option 3 - Manually Enter Credentials
 
-If credentials are not able to be imported from config.py and there are no environment variables set, the program will ask you to manually enter credentials.
+If the app is not able to import credentials from `config.py` and there are no environment variables set, the program will ask you to manually enter your credentials.
 
 ---
 
 ## Using the Program
 
-### Add a Plug Button
+### "Add a Plug" Button
 
 - Click the "Add Plug" button to add a device to the list. Enter a description (can be anything) and the device's IP address.
 - Plugs can be named anything, it _does NOT need to match_ the name in the tapo app.
@@ -167,32 +169,32 @@ If credentials are not able to be imported from config.py and there are no envir
 
 > Note: The list of devices stored in the user's home directory within a file called `.tapo_plugs.json`.
 
-### ON and OFF Buttons
+### "ON" and "OFF" Buttons
 
 - Clicking either button sends a command to the plug and awaits a response. If there is an authentication error, the user will recieve a pop-up warning.
 - The button that was clicked/pressed last will be highlighted. This is not a reliable indicator of the device's status, and is only influenced by the last press.
 
-### ALL ON and ALL OFF Buttons
+### "ALL ON" and "ALL OFF" Buttons
 
 - This will set the status of all devices to ON or OFF. If there is an error for a single plug, the user will recieve a pop-up warning, but it will not stop the batch process.
 - The highlighted status of the button will change as each plug responds.
 
-### Edit Button
+### "Edit" Button
 
 - This feature allows a device's properties to be edited.
 - Plugs can be named anything, it does not need to match the name in the tapo app.
 
-### X (Remove) Button
+### "X" (Remove) Button
 
 - This will remove a device from the list.
 - You will receive a confirmation pop-up.
 - This action cannot be undone.
 
-### Save List Button
+### "Save List" Button
 
 - This feature is a bit redundant, as the list is saved by default when an item is added or deleted. It exists for debugging purposes.
 
-### Import Plugs...
+### "Import Plugs..." Feature
 
 - Located in the `File` menu.
 - This allows a list of plugs to be imported from another JSON file, rather than entering plugs manually.
